@@ -1,15 +1,17 @@
-package logwriter
+package logwriter_test
 
 import (
 	"os"
 	"testing"
+
+	"github.com/samuelralmeida/logwriter"
 )
 
 func TestNewLogWriter(t *testing.T) {
 	filename := "test.log"
 	defer os.Remove(filename)
 
-	lw, err := NewLogWriter(filename)
+	lw, err := logwriter.NewLogWriter(filename)
 	if err != nil {
 		t.Fatalf("Expected no error when creating the log writer, but got: %v", err)
 	}
@@ -23,7 +25,7 @@ func TestLogWriter_Write(t *testing.T) {
 	filename := "test.log"
 	defer os.Remove(filename)
 
-	lw, err := NewLogWriter(filename)
+	lw, err := logwriter.NewLogWriter(filename)
 	if err != nil {
 		t.Fatalf("Expected no error when creating the log writer, but got: %v", err)
 	}
@@ -48,7 +50,7 @@ func TestLogWriter_Close(t *testing.T) {
 	filename := "test.log"
 	defer os.Remove(filename)
 
-	lw, err := NewLogWriter(filename)
+	lw, err := logwriter.NewLogWriter(filename)
 	if err != nil {
 		t.Fatalf("Expected no error when creating the log writer, but got: %v", err)
 	}
