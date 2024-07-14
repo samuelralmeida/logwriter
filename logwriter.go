@@ -1,9 +1,13 @@
 package logwriter
 
-import "os"
+import (
+	"os"
+	"sync"
+)
 
 type LogWriter struct {
 	file *os.File
+	mu   sync.Mutex
 }
 
 func NewLogWriter(filename string) (*LogWriter, error) {
@@ -15,10 +19,14 @@ func NewLogWriter(filename string) (*LogWriter, error) {
 }
 
 func (l *LogWriter) Close() error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	return l.file.Close()
 }
 
 func (l *LogWriter) Write(text string) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	_, err := l.file.WriteString(text)
 	return err
 }
