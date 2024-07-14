@@ -1,6 +1,6 @@
 # logwriter
 
-logwriter is a simple Go package for writing log messages to a file.
+`logwriter` is a simple Go package for writing log messages to a file. It is safe for use with goroutines, allowing multiple goroutines to write to the log file concurrently without causing race conditions.
 
 ## Installation
 
@@ -34,6 +34,41 @@ func main() {
     if err != nil {
         log.Fatalf("Failed to write to log file: %v", err)
     }
+}
+```
+
+## Goroutine Safety
+
+The logwriter package is safe for use with goroutines. You can safely use the same logWriter instance across multiple goroutines. Here is an example demonstrating concurrent writes:
+
+```go
+package main
+
+import (
+    "log"
+    "sync"
+    "github.com/yourusername/logwriter"
+)
+
+func main() {
+    lw, err := logwriter.NewLogWriter("logfile.log")
+    if err != nil {
+        log.Fatalf("Failed to create log writer: %v", err)
+    }
+    defer lw.Close()
+
+    var wg sync.WaitGroup
+    for i := 0; i < 10; i++ {
+        wg.Add(1)
+        go func(i int) {
+            defer wg.Done()
+            err := lw.Write(fmt.Sprintf("Log message from goroutine %d\n", i))
+            if err != nil {
+                log.Printf("Failed to write log message: %v", err)
+            }
+        }(i)
+    }
+    wg.Wait()
 }
 ```
 

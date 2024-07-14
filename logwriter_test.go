@@ -2,6 +2,8 @@ package logwriter_test
 
 import (
 	"os"
+	"strings"
+	"sync"
 	"testing"
 
 	"github.com/samuelralmeida/logwriter"
@@ -59,8 +61,45 @@ func TestLogWriter_Close(t *testing.T) {
 		t.Fatalf("Expected no error when closing the log file, but got: %v", err)
 	}
 
-	// Try writing to the file after closing to ensure it is really closed
 	if err := lw.Write("This should fail"); err == nil {
 		t.Fatalf("Expected an error when writing to the closed file, but did not get one")
+	}
+}
+
+func TestLogWriter_ConcurrentWrite(t *testing.T) {
+	filename := "test.log"
+	defer os.Remove(filename)
+
+	lw, err := logwriter.NewLogWriter(filename)
+	if err != nil {
+		t.Fatalf("Expected no error when creating the log writer, but got: %v", err)
+	}
+	defer lw.Close()
+
+	var wg sync.WaitGroup
+	messages := []string{"Hello, log!", "Another log message", "Yet another log message"}
+
+	for _, msg := range messages {
+		wg.Add(1)
+		go func(m string) {
+			defer wg.Done()
+			if err := lw.Write(m + "\n"); err != nil {
+				t.Errorf("Expected no error when writing to the log file, but got: %v", err)
+			}
+		}(msg)
+	}
+
+	wg.Wait()
+
+	contentByte, err := os.ReadFile(filename)
+	if err != nil {
+		t.Fatalf("Expected no error when reading the log file, but got: %v", err)
+	}
+
+	contentString := string(contentByte)
+	for _, msg := range messages {
+		if !strings.Contains(contentString, msg) {
+			t.Fatalf("Expected the file content to contain '%s'", msg)
+		}
 	}
 }
