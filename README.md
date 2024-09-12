@@ -92,27 +92,72 @@ Creates a new logWriter that writes to the specified file. If the file does not 
     *logWriter: A pointer to the created logWriter.
     error: An error if there was a problem creating or opening the file.
 
-### Write
+### Writing
 
 ```go
-
-func (l *logWriter) Write(text string) error
+func (l *LogWriter) Write(a ...any) error
 ```
 
-Writes a log message to the file.
+This method formats and writes the provided arguments as a log message. It converts the arguments into a single string using fmt.Sprint, then writes to the file.
 
-#### Parameters:
+**Parameters:**
 
-    text: The log message to be written.
+`a ...any`: A variadic parameter that accepts any number of arguments.
 
-#### Returns:
+**Returns:**
 
-    error: An error if there was a problem writing to the file.
+`error`: An error, if any occurred during the write operation.
+
+```go
+func (l *LogWriter) Writeln(a ...any) error
+```
+
+This method formats and writes the provided arguments as a log message with a newline appended. It converts the arguments into a single string using fmt.Sprintln, then writes to the file.
+
+**Parameters:**
+
+`a ...any`: A variadic parameter that accepts any number of arguments.
+
+**Returns:**
+
+`error`: An error, if any occurred during the write operation.
+
+```go
+func (l *LogWriter) Writef(format string, a ...any) error
+```
+
+This method formats and writes a log message according to the specified format string. It uses fmt.Sprintf to format the message, then writes to the file.
+
+**Parameters:**
+
+`format string`: A format string as per fmt.Sprintf syntax.
+
+`a ...any`: Additional arguments to be formatted according to the format string.
+
+**Returns:**
+
+`error`: An error, if any occurred during the write operation.
+
+```go
+func (l *LogWriter) WriteAsJson(msg string, fields map[string]any) error
+```
+
+This method writes a log message in JSON format. It includes the provided message and additional fields in the JSON object. If the fields map is nil, it initializes it to an empty map. The JSON is then written to the file.
+
+**Parameters:**
+
+`msg string`: The log message to include in the JSON object.
+
+`fields map[string]any`: A map of additional fields to include in the JSON object. If nil, it defaults to an empty map.
+
+**Returns:**
+
+`error`: An error, if any occurred during the JSON marshaling or write operation.
+
 
 ### Close
 
 ```go
-
 func (l *logWriter) Close() error
 ```
 Closes the log file.
